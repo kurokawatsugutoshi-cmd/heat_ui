@@ -73,10 +73,10 @@ export function AlertResponseScreen({
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 pt-4 pb-4">
         <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-500">〇〇鉄筋工業（一次請け）</p>
+          <p className="type-caption">〇〇鉄筋工業（一次請け）</p>
           <p className="mt-0.5 flex items-baseline justify-between gap-2">
-            <span className="text-lg font-bold text-slate-900">グエン・ヴァン</span>
-            <span className="text-sm text-slate-500">言語：JP / VI</span>
+            <span className="type-title">グエン・ヴァン</span>
+            <span className="type-meta">言語：JP / VI</span>
           </p>
           <ul className="mt-3 flex flex-wrap gap-1.5">
             {REASONS.map((r) => (
@@ -110,8 +110,8 @@ export function AlertResponseScreen({
                         selected ? 'border-blue-600 bg-blue-50/50' : 'border-slate-200 hover:border-blue-600 hover:bg-blue-50/50',
                       )}
                     >
-                      <span className="block text-sm font-semibold text-slate-900">{t.title}</span>
-                      <span className="mt-0.5 block text-xs leading-snug text-slate-500">{t.sub}</span>
+                      <span className="type-label block">{t.title}</span>
+                      <span className="type-caption mt-0.5 block leading-snug">{t.sub}</span>
                     </button>
                   </li>
                 )
@@ -130,7 +130,7 @@ export function AlertResponseScreen({
                 <a
                   href="tel:0000000000"
                   onClick={(e) => e.preventDefault()}
-                  className="flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-slate-300 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  className="type-button flex min-h-[42px] items-center justify-center gap-1.5 rounded-lg border border-line bg-white text-ink hover:bg-canvas"
                 >
                   <Phone className="size-4" aria-hidden />
                   本人へ電話
@@ -138,7 +138,7 @@ export function AlertResponseScreen({
                 <a
                   href="tel:0000000000"
                   onClick={(e) => e.preventDefault()}
-                  className="flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-red-600 bg-white text-sm font-semibold text-red-600 hover:bg-red-50"
+                  className="type-button flex min-h-[42px] items-center justify-center gap-1.5 rounded-lg bg-sub text-sub-ink hover:bg-blue-200"
                 >
                   <Ambulance className="size-4" aria-hidden />
                   救護本部へ連絡
@@ -152,7 +152,7 @@ export function AlertResponseScreen({
             </ActionButton>
           )}
           {step === 'responding' && !isOther && (
-            <ActionButton variant="ink" onClick={() => onStepChange('choosing')}>
+            <ActionButton onClick={() => onStepChange('choosing')}>
               対応完了（処置内容の記録へ進む）
             </ActionButton>
           )}

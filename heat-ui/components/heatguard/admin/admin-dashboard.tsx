@@ -8,14 +8,15 @@ import { DashboardTable, TimelineDot } from '@/components/heatguard/admin/dashbo
 import { WorkerDrawer } from '@/components/heatguard/admin/worker-drawer'
 import { SettingsModal } from '@/components/heatguard/admin/settings-modal'
 import { cn } from '@/lib/utils'
+import { numeric } from '@/components/heatguard/numeric-font'
 
 type Kpi = { label: string; value: string; sub: string; accent: string }
 
 const kpis: Kpi[] = [
-  { label: '本日の入場者数', value: '142', sub: '登録: 146名中', accent: 'text-zinc-900' },
+  { label: '本日の入場者数', value: '142', sub: '登録: 146名中', accent: 'text-ink' },
   { label: '朝の要注意', value: '6', sub: '血圧・睡眠・前日引継', accent: 'text-amber-600' },
   { label: 'アラート発生', value: '1', sub: '鈴木職長 対応中', accent: 'font-medium text-red-600' },
-  { label: '定時チェック未入力', value: '2', sub: '5分本人通知済・10分上長通知', accent: 'text-zinc-900' },
+  { label: '定時チェック未入力', value: '2', sub: '5分本人通知済・10分上長通知', accent: 'text-ink' },
 ]
 
 const siteOptions = [
@@ -77,7 +78,10 @@ export function AdminDashboard() {
           <div className="ml-auto flex flex-wrap items-center gap-x-6 gap-y-2">
             <p className="flex items-center gap-2 whitespace-nowrap text-sm text-zinc-600">
               大阪市北区｜気温 33.5℃ / WBGT 31.2℃
-              <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-xs font-bold text-white">厳重警戒</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500 bg-white px-2.5 py-0.5 text-xs text-zinc-500">
+                <span className="size-1.5 rounded-full bg-red-500" aria-hidden />
+                厳重警戒
+              </span>
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -91,7 +95,7 @@ export function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => setSettingsOpen(true)}
-                className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+                className="type-button flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-white transition-colors hover:bg-blue-700"
               >
                 <Settings className="size-4" aria-hidden />
                 設定
@@ -106,7 +110,7 @@ export function AdminDashboard() {
               <li key={k.label}>
                 <p className="text-xs font-semibold text-zinc-500">{k.label}</p>
                 <p className="mt-2 flex items-baseline">
-                  <span className={cn('text-5xl font-normal tracking-tight tabular-nums', k.accent)}>{k.value}</span>
+                  <span className={cn(numeric.className, 'text-5xl leading-none tracking-[0.005em] tabular-nums', k.accent)}>{k.value}</span>
                   <span className="ml-1 text-sm text-zinc-400">名</span>
                 </p>
                 <p className="mt-2 text-xs text-zinc-400">{k.sub}</p>

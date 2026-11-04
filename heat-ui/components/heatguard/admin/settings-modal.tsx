@@ -216,7 +216,7 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            className="type-button rounded-lg border border-line bg-white px-4 py-2 text-ink hover:bg-canvas"
           >
             キャンセル
           </button>
@@ -227,7 +227,7 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
               onSave()
               onClose()
             }}
-            className="rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="type-button rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
           >
             設定を保存する
           </button>

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { PhoneFrame } from '@/components/showcase/device-frames'
-import { PhoneHeader, type Lang } from '@/components/showcase/phone-header'
+import { type Lang } from '@/components/showcase/phone-header'
+import { WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
 import { Toast } from '@/components/heatguard/mobile-ui'
 import { EntryBlockModal } from '@/components/heatguard/entry/entry-block-modal'
 
@@ -21,10 +22,11 @@ export function EntryBlockScreen() {
     <PhoneFrame
       label="W-03 入場制限・上長確認モーダル"
       time="7:46"
+      className="bg-canvas text-ink"
       overlay={open ? <EntryBlockModal findings={SAMPLE_FINDINGS} onResolve={resolve} /> : <Toast>入場受付完了</Toast>}
     >
-      <PhoneHeader lang={lang} onLangChange={setLang} />
-      <div className="space-y-3 px-5 pt-4" aria-hidden>
+      <WorkerHeader lang={lang} onLangChange={setLang} />
+      <div className="flex-1 space-y-3 bg-canvas px-5 pt-4" aria-hidden>
         <div className="h-6 w-44 rounded bg-slate-200" />
         <div className="grid grid-cols-3 gap-2">
           <div className="h-24 rounded-md border border-slate-200 bg-white" />
@@ -35,6 +37,7 @@ export function EntryBlockScreen() {
         <div className="h-11 rounded-md border border-slate-200 bg-white" />
         <div className="h-11 rounded-md border border-slate-200 bg-white" />
       </div>
+      <WorkerFooter />
     </PhoneFrame>
   )
 }

@@ -1,18 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { PhoneFrame } from '@/components/showcase/device-frames'
-import { PhoneHeader, type Lang } from '@/components/showcase/phone-header'
-import { ActionButton, MoodPicker, SectionLabel, Toast, type Mood } from '@/components/heatguard/mobile-ui'
+import { type Lang } from '@/components/showcase/phone-header'
+import { WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
+import { numeric } from '@/components/heatguard/numeric-font'
+import { ActionButton, MoodPicker, Toast, type Mood } from '@/components/heatguard/mobile-ui'
 import { EntryBlockModal } from '@/components/heatguard/entry/entry-block-modal'
 import { cn } from '@/lib/utils'
 
 type Sleep = '7h' | '6h' | '5h'
 
-const sleepOptions: { value: Sleep; label: string }[] = [
-  { value: '7h', label: '7時間以上' },
-  { value: '6h', label: '6時間' },
-  { value: '5h', label: '5時間以下' },
+const sleepOptions: { value: Sleep; figure: string; caption: string }[] = [
+  { value: '7h', figure: '7', caption: '時間以上' },
+  { value: '6h', figure: '6', caption: '時間' },
+  { value: '5h', figure: '5', caption: '時間以下' },
 ]
 
 export const BP_LIMIT = { sys: 180, dia: 110 }
@@ -25,39 +28,100 @@ export function entryFindings({ mood, sys, dia, sleep }: { mood: Mood; sys: numb
   return findings
 }
 
+function StepButton({ label, onStep, children }: { label: string; onStep: () => void; children: React.ReactNode }) {
+  const delay = useRef<number | null>(null)
+  const repeat = useRef<number | null>(null)
+
+  const clear = () => {
+    if (delay.current) window.clearTimeout(delay.current)
+    if (repeat.current) window.clearInterval(repeat.current)
+    delay.current = null
+    repeat.current = null
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className="flex aspect-square size-14 shrink-0 touch-manipulation items-center justify-center rounded-md bg-white p-0 text-ink select-none active:bg-black active:text-white"
+      onPointerDown={(e) => {
+        if (e.button !== 0) return
+        e.currentTarget.setPointerCapture(e.pointerId)
+        onStep()
+        clear()
+        delay.current = window.setTimeout(() => {
+          repeat.current = window.setInterval(onStep, 70)
+        }, 380)
+      }}
+      onPointerUp={clear}
+      onPointerCancel={clear}
+      onLostPointerCapture={clear}
+      onKeyDown={(e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return
+        e.preventDefault()
+        onStep()
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 function Stepper({
   label,
   unit,
   value,
+  min,
+  max,
   onChange,
   over,
 }: {
   label: string
   unit: string
   value: number
+  min: number
+  max: number
   onChange: (v: number) => void
   over?: boolean
 }) {
-  const stepClass =
-    'flex h-11 w-14 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50'
+  const valueRef = useRef(value)
+  const onChangeRef = useRef(onChange)
+  valueRef.current = value
+  onChangeRef.current = onChange
+
+  const step = (delta: number) => {
+    const next = Math.min(max, Math.max(min, valueRef.current + delta))
+    if (next === valueRef.current) return
+    valueRef.current = next
+    onChangeRef.current(next)
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="w-[4.5rem] shrink-0 text-sm text-slate-600">{label}</span>
-      <button type="button" onClick={() => onChange(value - 10)} className={stepClass} aria-label={`${label}を10下げる`}>
-        -10
-      </button>
-      <span
+    <div className="flex items-center gap-1.5">
+      <span className="type-body w-16 shrink-0 leading-tight">{label}</span>
+      <div
         className={cn(
-          'flex h-11 flex-1 items-baseline justify-center gap-1 rounded-md border bg-white pt-2 tabular-nums',
-          over ? 'border-amber-500 text-amber-700' : 'border-slate-200 text-slate-900',
+          'flex h-14 min-w-0 flex-1 items-center justify-end gap-1 rounded-md bg-white pr-3',
+          over && 'ring-1 ring-amber-400 ring-inset',
         )}
       >
-        <span className="text-xl font-semibold">{value}</span>
-        <span className="text-xs text-slate-400">{unit}</span>
-      </span>
-      <button type="button" onClick={() => onChange(value + 10)} className={stepClass} aria-label={`${label}を10上げる`}>
-        +10
-      </button>
+        <span
+          className={cn(
+            numeric.className,
+            'text-[1.75rem] leading-none tracking-[0.005em]',
+            over ? 'text-amber-700' : 'text-ink',
+          )}
+        >
+          {value}
+        </span>
+        <span className="type-caption w-9 shrink-0 leading-none">{unit}</span>
+      </div>
+      <StepButton label={`${label}を1上げる`} onStep={() => step(1)}>
+        <ChevronUp className="size-6" aria-hidden />
+      </StepButton>
+      <StepButton label={`${label}を1下げる`} onStep={() => step(-1)}>
+        <ChevronDown className="size-6" aria-hidden />
+      </StepButton>
     </div>
   )
 }
@@ -91,6 +155,7 @@ export function MorningCheckScreen({ onEntered, highlighted }: { onEntered?: () 
     <PhoneFrame
       label="W-02 朝の体調・バイタルチェック画面"
       time="7:45"
+      className="bg-canvas text-ink"
       highlighted={highlighted}
       overlay={
         <>
@@ -99,17 +164,18 @@ export function MorningCheckScreen({ onEntered, highlighted }: { onEntered?: () 
         </>
       }
     >
-      <PhoneHeader lang={lang} onLangChange={setLang} />
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-4 pb-4">
-        <h2 className="flex items-baseline gap-2 text-xl font-bold text-slate-900">
+      <WorkerHeader lang={lang} onLangChange={setLang} />
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto bg-canvas px-5 pt-4 pb-5 [&>section+section]:mt-2.5">
+        <h2 className="type-title flex items-baseline gap-2">
           朝の体調チェック
-          <span className="text-sm font-normal text-slate-500">10/31 (土)</span>
+          <span className="type-meta font-normal">10/31 (土)</span>
         </h2>
 
         <section>
-          <SectionLabel step="1">今日の体調</SectionLabel>
+          <p className="type-label mb-2">今日の体調を入力</p>
           <MoodPicker
-            legend="今日の体調"
+            size="lg"
+            legend="今日の体調を入力"
             value={mood}
             onChange={setMood}
             labels={{ good: { title: '良い' }, normal: { title: '普通' }, bad: { title: '悪い' } }}
@@ -117,44 +183,45 @@ export function MorningCheckScreen({ onEntered, highlighted }: { onEntered?: () 
         </section>
 
         <section>
-          <SectionLabel step="2" hint="血圧計の数値を入力">
-            朝の血圧・脈拍
-          </SectionLabel>
+          <p className="type-label mb-2">血圧・脈拍を入力</p>
           <div className="space-y-2">
-            <Stepper label="最高血圧" unit="mmHg" value={sys} onChange={setSys} over={sys >= BP_LIMIT.sys} />
-            <Stepper label="最低血圧" unit="mmHg" value={dia} onChange={setDia} over={dia >= BP_LIMIT.dia} />
-            <Stepper label="脈拍" unit="bpm" value={pulse} onChange={setPulse} />
+            <Stepper label="最高血圧" unit="mmHg" value={sys} min={70} max={250} onChange={setSys} over={sys >= BP_LIMIT.sys} />
+            <Stepper label="最低血圧" unit="mmHg" value={dia} min={40} max={150} onChange={setDia} over={dia >= BP_LIMIT.dia} />
+            <Stepper label="脈拍" unit="bpm" value={pulse} min={30} max={200} onChange={setPulse} />
           </div>
         </section>
 
         <section>
-          <SectionLabel step="3">昨日の睡眠時間</SectionLabel>
-          <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="昨日の睡眠時間">
+          <p className="type-label mb-2">睡眠時間を入力</p>
+          <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="睡眠時間を入力">
             {sleepOptions.map((o) => {
               const selected = sleep === o.value
               return (
-                <button
-                  key={o.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => setSleep(o.value)}
-                  className={cn(
-                    'h-11 rounded-md border-2 text-sm font-semibold transition-colors',
-                    selected ? 'border-blue-600 bg-blue-50/50 text-blue-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300',
-                  )}
-                >
-                  {o.label}
-                </button>
+                <div key={o.value} className="@container">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setSleep(o.value)}
+                    className={cn(
+                      'flex h-[calc(100cqw-6px)] w-full flex-col items-center justify-center rounded-md bg-white px-1 text-ink active:bg-blue-600 active:text-white',
+                      selected && 'bg-blue-600 text-white',
+                    )}
+                  >
+                    <span className={`${numeric.className} text-[2.5rem] leading-none tracking-[0.005em]`}>{o.figure}</span>
+                    <span className="mt-1 text-xs leading-none">{o.caption}</span>
+                  </button>
+                </div>
               )
             })}
           </div>
         </section>
 
-        <div className="mt-auto">
-          <ActionButton onClick={submit}>入力完了（入場する）</ActionButton>
+        <div className="mt-auto pt-1">
+          <ActionButton onClick={submit}>入力完了する</ActionButton>
         </div>
       </div>
+      <WorkerFooter />
     </PhoneFrame>
   )
 }

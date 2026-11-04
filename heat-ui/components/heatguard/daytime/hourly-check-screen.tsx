@@ -1,29 +1,31 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Droplets, Hand, Pill, type LucideIcon } from 'lucide-react'
+import { Droplets, Hand, Pill, type LucideIcon } from 'lucide-react'
 import { PhoneFrame } from '@/components/showcase/device-frames'
-import { PhoneHeader, type Lang } from '@/components/showcase/phone-header'
-import { ActionButton, EmergencyButton, MoodPicker, SectionLabel, Toast, type Mood } from '@/components/heatguard/mobile-ui'
+import { type Lang } from '@/components/showcase/phone-header'
+import { ActionButton, MoodPicker, Toast, type Mood } from '@/components/heatguard/mobile-ui'
+import { WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
 import { cn } from '@/lib/utils'
 
 export type CheckResult = 'ok' | 'caution' | 'danger'
 
 function SupplyTile({ pressed, onToggle, icon: Icon, label }: { pressed: boolean; onToggle: () => void; icon: LucideIcon; label: string }) {
   return (
-    <button
-      type="button"
-      aria-pressed={pressed}
-      onClick={onToggle}
-      className={cn(
-        'relative flex flex-col items-center gap-1.5 rounded-md border py-3 transition-colors',
-        pressed ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300',
-      )}
-    >
-      {pressed && <Check className="absolute top-1.5 right-1.5 size-4" aria-hidden />}
-      <Icon className="size-7" aria-hidden />
-      <span className="text-sm font-semibold">{label}</span>
-    </button>
+    <div className="@container">
+      <button
+        type="button"
+        aria-pressed={pressed}
+        onClick={onToggle}
+        className={cn(
+          'flex h-[calc(100cqw-6px)] w-full flex-col items-center justify-center rounded-md bg-white px-2 text-ink transition-colors active:bg-blue-600 active:text-white',
+          pressed && 'bg-blue-600 text-white',
+        )}
+      >
+        <Icon className="size-11" aria-hidden />
+        <span className="mt-2 text-sm font-semibold leading-none">{label}</span>
+      </button>
+    </div>
   )
 }
 
@@ -45,15 +47,13 @@ export function HourlyCheckScreen({ onSubmit, highlighted }: { onSubmit: (result
   }
 
   return (
-    <PhoneFrame label="W-04_2 日中の定時チェック画面" time="14:02" highlighted={highlighted} overlay={sent ? <Toast>送信しました</Toast> : undefined}>
-      <PhoneHeader lang={lang} onLangChange={setLang} />
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-4 pb-4">
-        <h2 className="text-xl font-bold text-slate-900">定時チェック（14:00 休憩枠）</h2>
+    <PhoneFrame label="W-04_2 日中の定時チェック画面" time="14:02" className="bg-canvas text-ink" highlighted={highlighted} overlay={sent ? <Toast>送信しました</Toast> : undefined}>
+      <WorkerHeader lang={lang} onLangChange={setLang} />
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto bg-canvas px-5 pt-4 pb-5 [&>section+section]:mt-2.5">
+        <h2 className="type-title">定時チェック（14:00 休憩枠）</h2>
 
         <section>
-          <SectionLabel step="1" hint="補給したらタップ">
-            水分・塩分の補給
-          </SectionLabel>
+          <p className="type-label mb-2">水分・塩分を入力</p>
           <div className="grid grid-cols-2 gap-2">
             <SupplyTile pressed={water} onToggle={() => setWater(!water)} icon={Droplets} label="水分をとった" />
             <SupplyTile pressed={salt} onToggle={() => setSalt(!salt)} icon={Pill} label="塩分をとった" />
@@ -61,9 +61,10 @@ export function HourlyCheckScreen({ onSubmit, highlighted }: { onSubmit: (result
         </section>
 
         <section>
-          <SectionLabel step="2">今の体調</SectionLabel>
+          <p className="type-label mb-2">今の体調を入力</p>
           <MoodPicker
-            legend="今の体調"
+            size="lg"
+            legend="今の体調を入力"
             value={mood}
             onChange={setMood}
             labels={{
@@ -75,29 +76,29 @@ export function HourlyCheckScreen({ onSubmit, highlighted }: { onSubmit: (result
         </section>
 
         <section>
-          <SectionLabel step="3" hint="確認ガイド">
-            脱水セルフチェック
-          </SectionLabel>
-          <p className="flex items-start gap-2 rounded-md border border-blue-100 bg-blue-50/60 p-3 text-sm leading-relaxed text-slate-700">
+          <p className="type-label mb-2">脱水の有無を入力</p>
+          <p className="type-body flex items-start gap-2 rounded-2xl bg-white p-3">
             <Hand className="mt-0.5 size-5 shrink-0 text-blue-600" aria-hidden />
             爪先を3秒押して赤みがすぐ戻るか、手の甲の皮膚をつまんで戻るか確認してください。
           </p>
-          <label className="mt-2 flex cursor-pointer items-start gap-2 px-1 text-sm text-slate-700">
-            <input
-              type="checkbox"
-              checked={dehydrated}
-              onChange={(e) => setDehydrated(e.target.checked)}
-              className="mt-0.5 size-4 shrink-0 rounded accent-blue-600"
-            />
-            戻りが遅い・脱水の疑いがある場合はチェック
-          </label>
+          <button
+            type="button"
+            aria-pressed={dehydrated}
+            onClick={() => setDehydrated((v) => !v)}
+            className={cn(
+              'type-body mt-2 flex w-full items-center rounded-md bg-white px-3 py-3 text-left leading-relaxed text-ink transition-colors active:bg-blue-600 active:text-white',
+              dehydrated && 'bg-blue-600 text-white',
+            )}
+          >
+            戻りが遅い・脱水の疑いがある場合は<span className="whitespace-nowrap">チェック</span>
+          </button>
         </section>
 
-        <div className="mt-auto space-y-2.5">
+        <div className="mt-auto pt-1">
           <ActionButton onClick={submit}>確認して送信する</ActionButton>
-          <EmergencyButton label="緊急連絡（工事課員へ直通）" />
         </div>
       </div>
+      <WorkerFooter />
     </PhoneFrame>
   )
 }

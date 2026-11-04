@@ -5,24 +5,28 @@ type PhoneFrameProps = {
   children: React.ReactNode
   time?: string
   tone?: 'light' | 'alert'
+  frame?: 'light' | 'dark'
   className?: string
   label: string
   overlay?: React.ReactNode
   highlighted?: boolean
 }
 
-export function PhoneFrame({ children, time = '7:45', tone = 'light', className, label, overlay, highlighted }: PhoneFrameProps) {
+export function PhoneFrame({ children, time = '7:45', tone = 'light', frame = 'light', className, label, overlay, highlighted }: PhoneFrameProps) {
+  const dark = frame === 'dark'
   return (
     <figure
       aria-label={label}
       className={cn(
-        'relative w-[375px] shrink-0 rounded-[2.5rem] border border-slate-300 bg-white p-[9px] shadow-[0_24px_48px_-24px_rgba(15,23,42,0.25)] transition-shadow duration-300',
+        'relative w-[375px] shrink-0 rounded-[2.5rem] border p-[9px] shadow-[0_24px_48px_-24px_rgba(15,23,42,0.25)] transition-shadow duration-300',
+        dark ? 'border-black bg-black' : 'border-slate-300 bg-white',
         highlighted && 'ring-2 ring-blue-600 ring-offset-4 ring-offset-slate-50',
       )}
     >
       <div
         className={cn(
-          'relative flex h-[780px] flex-col overflow-hidden rounded-[2rem] border border-slate-200 transition-colors duration-500',
+          'relative flex h-[780px] flex-col overflow-hidden rounded-[2rem] border transition-colors duration-500',
+          dark ? 'border-black' : 'border-slate-200',
           tone === 'light' ? 'bg-slate-50 text-slate-900' : 'border-red-700 bg-[#DC2626] text-white',
           className,
         )}

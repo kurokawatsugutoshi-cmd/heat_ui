@@ -1,42 +1,43 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, Bell, ChevronDown, Globe, PhoneCall, TrendingUp } from 'lucide-react'
-import { Outfit } from 'next/font/google'
+import { ArrowRight, Bell, Sun, TrendingUp } from 'lucide-react'
 import { PhoneFrame } from '@/components/showcase/device-frames'
-import { LANGS, type Lang } from '@/components/showcase/phone-header'
-
-const numeric = Outfit({
-  subsets: ['latin'],
-  weight: ['400'],
-})
+import { type Lang } from '@/components/showcase/phone-header'
+import { numeric } from '@/components/heatguard/numeric-font'
+import { ActionButton } from '@/components/heatguard/mobile-ui'
+import { WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
 
 export function ReminderBox({ notice }: { notice?: string }) {
   return (
-    <div className="rounded-md border border-blue-200 bg-blue-50/80 p-3.5">
-      <p className="flex items-start gap-2 text-sm font-bold leading-relaxed text-slate-900">
-        <Bell className="mt-0.5 size-4 shrink-0 text-blue-600" aria-hidden />
-        14:00 休憩時間です。水分を補給して定時チェックを行ってください。
+    <div className="rounded-2xl bg-white p-3.5">
+      <p className="type-read">
+        <span className="flex items-center gap-1.5">
+          <Bell className="size-4 shrink-0 text-blue-600" aria-hidden />
+          14:00
+        </span>
+        休憩時間です。水分を補給して定時チェックを行ってください。
       </p>
-      {notice && <p className="mt-2 truncate border-t border-blue-200 pt-2 pl-6 text-sm text-slate-600">{notice}</p>}
+      {notice && <p className="type-caption mt-2 truncate">{notice}</p>}
     </div>
   )
 }
 
 export function WeatherCard() {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl bg-white p-4">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm text-slate-600">現在の現場気象（大阪市北区）</p>
-        <span className="shrink-0 rounded border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">
-          WBGT 31.2℃｜厳重警戒
+        <p className="type-meta">現在の現場気象（大阪市北区）</p>
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-red-500 bg-white px-3 py-0.5 text-xs text-zinc-500">
+          <span className="size-1.5 rounded-full bg-red-500" aria-hidden />
+          WBGT 31.2℃
         </span>
       </div>
       <p className="mt-2 flex items-baseline gap-2">
-        <span className="text-sm text-slate-600">現在の気温</span>
-        <span className="text-[28px] font-bold leading-none text-slate-900 tabular-nums">33.5℃</span>
+        <span className="type-meta">現在の気温</span>
+        <span className={`${numeric.className} text-[28px] leading-none tracking-[0.005em] text-ink`}>33.5℃</span>
       </p>
-      <p className="mt-3 flex items-start gap-1.5 rounded bg-slate-100 px-3 py-2 text-sm text-slate-700">
+      <p className="type-body mt-3 flex items-start gap-1.5 rounded-lg bg-canvas px-3 py-2">
         <TrendingUp className="mt-0.5 size-4 shrink-0" aria-hidden />
         14時台にかけて 36.0℃ まで上昇予想（15分ごとの水分補給を推奨）
       </p>
@@ -45,16 +46,10 @@ export function WeatherCard() {
 }
 
 const FORECAST = [
-  { label: 'いま', temp: 33.5 },
-  { label: '1時間後', temp: 35 },
-  { label: '2時間後', temp: 36 },
+  { label: 'いま', temp: 33.5, dot: 'bg-amber-200' },
+  { label: '1時間後', temp: 35, dot: 'bg-gradient-to-r from-amber-200 to-rose-300' },
+  { label: '2時間後', temp: 36, dot: 'bg-gradient-to-r from-rose-300 to-purple-300' },
 ] as const
-
-function forecastDot(temp: number) {
-  if (temp >= 35) return 'bg-rose-300'
-  if (temp >= 33) return 'bg-amber-200'
-  return 'bg-sky-200'
-}
 
 type WorkerHomeScreenProps = {
   onStartCheck: () => void
@@ -66,48 +61,30 @@ export function WorkerHomeScreen({ onStartCheck, notice }: WorkerHomeScreenProps
   const [lang, setLang] = useState<Lang>('JP')
 
   return (
-    <PhoneFrame label="W-04 作業員・職長 共通ホーム画面" time="14:00" className="bg-white text-zinc-600">
-      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[#e1e7ec] bg-[#f3f6f8] px-6 pt-3 pb-2">
-        <div className="min-w-0">
-          <p className="truncate text-xs text-zinc-400">〇〇工務店 / 作業員</p>
-          <p className="mt-[3px] truncate text-sm font-bold text-zinc-700">大和 太郎</p>
-        </div>
-        <label className="relative flex shrink-0 -translate-y-[1.5px] items-center self-center gap-1 rounded-full border border-zinc-200/80 bg-white px-[13px] py-1 text-xs text-zinc-500">
-          <Globe className="size-3.5" aria-hidden />
-          <span className="sr-only">表示言語</span>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as Lang)}
-            className="cursor-pointer appearance-none bg-transparent pr-3.5 outline-none"
-          >
-            {LANGS.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-2 size-3" aria-hidden />
-        </label>
-      </header>
+    <PhoneFrame label="W-04 作業員・職長 共通ホーム画面" time="14:00" frame="dark" className="bg-canvas text-ink">
+      <WorkerHeader lang={lang} onLangChange={setLang} />
 
-      <div className="flex min-h-0 flex-1 flex-col bg-[#f3f6f8] px-6 pt-1 pb-4">
+      <div className="flex min-h-0 flex-1 flex-col bg-canvas px-6 pt-1 pb-4">
         <section className="mt-3 rounded-2xl bg-white px-5 py-4">
-          <p className="min-h-[6.75rem] text-base font-bold leading-[27px] text-zinc-700">
+          <p className="type-read min-h-[6.75rem]">
             <span className="flex items-center justify-center gap-1.5">
-              <Bell className="size-4 shrink-0 text-blue-600" aria-hidden />
+              <Bell className="size-4 shrink-0 text-blue-600" style={{ strokeWidth: 2.75 }} aria-hidden />
               14:00
             </span>
             休憩時間です。水分を補給して定時チェックを行ってください。
           </p>
-          {notice && <p className="mt-2 truncate text-xs text-zinc-400">{notice}</p>}
+          {notice && <p className="type-caption mt-2 truncate">{notice}</p>}
         </section>
 
         <section className="flex flex-1 flex-col items-center justify-center px-2 text-center">
           <div className="flex -translate-y-1.5 flex-col items-center">
-            <p className="translate-y-0.5 text-sm text-zinc-400">現在の気温</p>
-            <p className={`${numeric.className} mt-1 text-[4.75rem] leading-none tracking-tight text-zinc-700`}>
+            <p className="type-meta translate-y-0.5">現在の気温</p>
+            <p className={`${numeric.className} mt-1 text-[4.75rem] leading-none tracking-[0.005em] text-ink`}>
               33<span className="text-[70%]">.5</span>
-              <span className="text-[2rem]">℃</span>
+              <span className="relative inline-block text-[2rem]">
+                <Sun className="absolute bottom-full left-1/2 mb-0.5 size-4 -translate-x-1/2 text-amber-400" aria-hidden />
+                ℃
+              </span>
             </p>
             <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-red-500 bg-white px-4 py-1 text-xs text-zinc-500">
               <span className="size-1.5 rounded-full bg-red-500" aria-hidden />
@@ -115,7 +92,7 @@ export function WorkerHomeScreen({ onStartCheck, notice }: WorkerHomeScreenProps
             </p>
           </div>
           <div className="mt-8 flex w-full flex-col items-center">
-            <p className="text-sm font-bold text-zinc-700">今後1時間で35℃まで上昇します</p>
+            <p className="type-label">今後1時間で35℃まで上昇します</p>
             <div className="relative mt-4 w-full max-w-[280px]">
               <div className="absolute top-[7px] right-[16%] left-[16%] h-px bg-zinc-200" aria-hidden />
               <ol className="relative grid grid-cols-3" aria-label="いまから2時間後までの気温">
@@ -123,11 +100,11 @@ export function WorkerHomeScreen({ onStartCheck, notice }: WorkerHomeScreenProps
                   <li key={point.label} aria-label={point.label} className="flex flex-col items-center">
                     <span className="relative flex size-3.5 items-center justify-center">
                       {index === 0 && (
-                        <span className="now-glow absolute size-8 rounded-full bg-amber-300 blur-[1px]" aria-hidden />
+                        <span className="now-glow absolute size-[22.4px] rounded-full bg-amber-300 blur-[1px]" aria-hidden />
                       )}
-                      <span className={`relative size-3.5 rounded-full ring-4 ring-[#f3f6f8] ${forecastDot(point.temp)}`} />
+                      <span className={`relative size-[9.8px] rounded-full ring-[2.8px] ring-canvas ${point.dot}`} />
                     </span>
-                    <span className={`${numeric.className} mt-3 text-sm text-zinc-600`}>{point.temp.toFixed(1)}</span>
+                    <span className={`${numeric.className} mt-3 text-sm text-ink`}>{point.temp.toFixed(1)}</span>
                   </li>
                 ))}
               </ol>
@@ -136,24 +113,12 @@ export function WorkerHomeScreen({ onStartCheck, notice }: WorkerHomeScreenProps
         </section>
 
         <div className="mt-auto">
-          <button
-            type="button"
-            onClick={onStartCheck}
-            className="mx-auto flex h-[42px] w-3/4 items-center justify-center gap-2 rounded-lg bg-blue-600 text-[15px] font-medium text-white transition-colors hover:bg-blue-700"
-          >
-            <ArrowRight className="size-4" aria-hidden />
+          <ActionButton onClick={onStartCheck} icon={ArrowRight} className="mx-auto h-[42px] w-3/4">
             定時チェックへ進む
-          </button>
+          </ActionButton>
         </div>
       </div>
-      <a
-        href="tel:0000000000"
-        onClick={(e) => e.preventDefault()}
-        className="flex h-14 w-full shrink-0 items-center justify-center gap-2 bg-blue-100 text-sm font-medium text-blue-800 transition-colors hover:bg-blue-200 active:bg-blue-200"
-      >
-        <PhoneCall className="size-4" aria-hidden />
-        緊急連絡
-      </a>
+      <WorkerFooter />
     </PhoneFrame>
   )
 }
