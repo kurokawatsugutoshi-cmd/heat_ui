@@ -5,7 +5,8 @@ import { ScanFace } from 'lucide-react'
 import { PhoneFrame } from '@/components/showcase/device-frames'
 import { type Lang } from '@/components/showcase/phone-header'
 import { ActionButton } from '@/components/heatguard/mobile-ui'
-import { WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
+import { SCREEN_BODY, WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
+import { cn } from '@/lib/utils'
 
 const consent: Record<Lang, { title: string; body: string[] }> = {
   JP: {
@@ -55,18 +56,18 @@ export function ConsentScreen({ onAgree }: { onAgree?: () => void }) {
   const doc = consent[lang]
 
   return (
-    <PhoneFrame label="W-01 入場QR自動認証と初回同意画面" time="7:41" className="bg-canvas text-ink">
+    <PhoneFrame label="W-01 入場QR自動認証と初回同意画面" time="7:41" frame="dark" className="bg-canvas text-ink">
       <WorkerHeader lang={lang} onLangChange={setLang} />
-      <div className="flex min-h-0 flex-1 flex-col gap-4 bg-canvas px-5 pt-4 pb-4">
-        <div className="-mx-1 rounded-2xl bg-white px-4 py-3">
+      <div className={cn(SCREEN_BODY, 'bg-canvas')}>
+        <section className="-mx-1 rounded-2xl bg-white px-4 py-3">
           <p className="type-read flex items-center gap-2">
             <ScanFace className="size-5 shrink-0 text-blue-600" aria-hidden />
             顔認証ゲート通過データと照合完了
           </p>
           <p className="type-body mt-1 pl-7">大和ハウス 〇〇新築工事現場（入場時刻 07:41）</p>
-        </div>
+        </section>
 
-        <div className="-mx-1 flex min-h-0 flex-1 flex-col rounded-2xl bg-white">
+        <section className="-mx-1 flex min-h-0 flex-1 flex-col rounded-2xl bg-white">
           <p className="type-label px-4 py-3">{doc.title}</p>
           <div tabIndex={0} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-3">
             {doc.body.map((p) => (
@@ -75,7 +76,7 @@ export function ConsentScreen({ onAgree }: { onAgree?: () => void }) {
               </p>
             ))}
           </div>
-        </div>
+        </section>
 
         <div className="space-y-2">
           <ActionButton onClick={onAgree}>同意して朝のチェックへ進む</ActionButton>

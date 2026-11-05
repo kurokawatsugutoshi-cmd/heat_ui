@@ -31,7 +31,7 @@ export function EntryBlockModal({ findings, onResolve }: EntryBlockModalProps) {
           ))}
         </ul>
 
-        <p className="mt-3 rounded-md bg-slate-100 p-3 text-base leading-relaxed text-ink">
+        <p className="mt-3 rounded-md bg-canvas p-3 text-base leading-relaxed text-ink">
           担当職長（鈴木 一郎）へ自動通知しました。詰所にて待機してください。
         </p>
 

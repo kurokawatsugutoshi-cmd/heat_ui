@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { PhoneFrame } from '@/components/showcase/device-frames'
 import { type Lang } from '@/components/showcase/phone-header'
-import { WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
+import { SCREEN_BODY, WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
 import { numeric } from '@/components/heatguard/numeric-font'
 import { ActionButton, MoodPicker, Toast, type Mood } from '@/components/heatguard/mobile-ui'
 import { EntryBlockModal } from '@/components/heatguard/entry/entry-block-modal'
@@ -155,6 +155,7 @@ export function MorningCheckScreen({ onEntered, highlighted }: { onEntered?: () 
     <PhoneFrame
       label="W-02 朝の体調・バイタルチェック画面"
       time="7:45"
+      frame="dark"
       className="bg-canvas text-ink"
       highlighted={highlighted}
       overlay={
@@ -165,7 +166,7 @@ export function MorningCheckScreen({ onEntered, highlighted }: { onEntered?: () 
       }
     >
       <WorkerHeader lang={lang} onLangChange={setLang} />
-      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto bg-canvas px-5 pt-4 pb-5 [&>section+section]:mt-2.5">
+      <div className={cn(SCREEN_BODY, 'bg-canvas')}>
         <h2 className="type-title flex items-baseline gap-2">
           朝の体調チェック
           <span className="type-meta font-normal">10/31 (土)</span>

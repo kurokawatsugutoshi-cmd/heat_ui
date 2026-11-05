@@ -112,10 +112,28 @@
   animation: now-glow 2.6s ease-in-out infinite;
 }
 
+@keyframes alert-wash {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.alert-wash {
+  animation: alert-wash 3s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .now-glow {
     animation: none;
     opacity: 0.55;
     transform: none;
+  }
+  .alert-wash {
+    animation: none;
+    opacity: 0.72;
   }
 }

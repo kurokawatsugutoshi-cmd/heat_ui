@@ -99,15 +99,16 @@ export function SectionLabel({ step, children, hint }: { step: string; children:
   )
 }
 
-type ActionVariant = 'primary' | 'ink' | 'alert-white' | 'alert-plain' | 'amber' | 'secondary'
+type ActionVariant = 'primary' | 'danger' | 'ink' | 'alert-white' | 'alert-plain' | 'amber' | 'secondary'
 
 const actionStyles: Record<ActionVariant, string> = {
   primary: 'bg-blue-600 text-white hover:bg-blue-700',
+  danger: 'bg-red-600 text-white hover:bg-red-700',
   ink: 'bg-slate-900 text-white hover:bg-slate-800',
   'alert-white': 'bg-white font-bold text-red-700 hover:bg-red-50',
   'alert-plain': 'bg-white font-bold text-slate-900 hover:bg-slate-50',
   amber: 'bg-amber-400 font-bold text-slate-950 hover:bg-amber-300',
-  secondary: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
+  secondary: 'bg-white text-ink hover:bg-canvas',
 }
 
 type ActionButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {

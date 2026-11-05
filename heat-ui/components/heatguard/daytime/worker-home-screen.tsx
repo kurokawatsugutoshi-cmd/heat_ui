@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, Bell, Sun, TrendingUp } from 'lucide-react'
+import { ArrowRight, Bell, MessageSquareWarning, Sun, TrendingUp } from 'lucide-react'
 import { PhoneFrame } from '@/components/showcase/device-frames'
 import { type Lang } from '@/components/showcase/phone-header'
 import { numeric } from '@/components/heatguard/numeric-font'
 import { ActionButton } from '@/components/heatguard/mobile-ui'
-import { WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
+import { SCREEN_BODY, WorkerFooter, WorkerHeader } from '@/components/heatguard/worker-chrome'
+import { cn } from '@/lib/utils'
 
 export function ReminderBox({ notice }: { notice?: string }) {
   return (
@@ -55,17 +56,46 @@ type WorkerHomeScreenProps = {
   onStartCheck: () => void
   morningResult?: '良好' | '要注意'
   notice?: string
+  company?: string
+  role?: string
+  name?: string
+  label?: string
+  time?: string
+  counts?: { good: number; bad: number }
+  teamsPush?: { title: string; body: string }
 }
 
-export function WorkerHomeScreen({ onStartCheck, notice }: WorkerHomeScreenProps) {
+export function WorkerHomeScreen({
+  onStartCheck,
+  notice,
+  company,
+  role,
+  name,
+  label = 'W-04 作業員・職長 共通ホーム画面',
+  time = '14:00',
+  counts,
+  teamsPush,
+}: WorkerHomeScreenProps) {
   const [lang, setLang] = useState<Lang>('JP')
 
   return (
-    <PhoneFrame label="W-04 作業員・職長 共通ホーム画面" time="14:00" frame="dark" className="bg-canvas text-ink">
-      <WorkerHeader lang={lang} onLangChange={setLang} />
+    <PhoneFrame label={label} time={time} frame="dark" className="bg-canvas text-ink">
+      <WorkerHeader company={company} role={role} name={name} lang={lang} onLangChange={setLang} counts={counts} />
 
-      <div className="flex min-h-0 flex-1 flex-col bg-canvas px-6 pt-1 pb-4">
-        <section className="mt-3 rounded-2xl bg-white px-5 py-4">
+      <div className={cn(SCREEN_BODY, 'relative bg-canvas')}>
+        {teamsPush && (
+          <div
+            role="status"
+            className="absolute inset-x-3 top-2 z-20 rounded-2xl bg-white p-3 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.28)]"
+          >
+            <p className="type-label flex items-center gap-2">
+              <MessageSquareWarning className="size-5 shrink-0 text-[#5B5FC7]" aria-hidden />
+              {teamsPush.title}
+            </p>
+            <p className="type-body mt-1 pl-7">{teamsPush.body}</p>
+          </div>
+        )}
+        <section className="rounded-2xl bg-white px-5 py-4">
           <p className="type-read min-h-[6.75rem]">
             <span className="flex items-center justify-center gap-1.5">
               <Bell className="size-4 shrink-0 text-blue-600" style={{ strokeWidth: 2.75 }} aria-hidden />
