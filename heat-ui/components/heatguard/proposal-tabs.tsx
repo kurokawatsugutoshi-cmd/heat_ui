@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ScreenColumn } from '@/components/showcase/screen-caption'
+import { SCREEN_GRID, ScreenCaption, ScreenColumn } from '@/components/showcase/screen-caption'
 import { ConsentScreen } from '@/components/heatguard/entry/consent-screen'
 import { MorningCheckScreen } from '@/components/heatguard/entry/morning-check-screen'
 import { EntryBlockScreen } from '@/components/heatguard/entry/entry-block-screen'
@@ -15,7 +15,7 @@ const tabs = [
   { id: 'entry', no: '1', label: '朝の入場', title: '朝の入場：自動認証 ＆ 朝の体調・バイタルチェック' },
   { id: 'daytime', no: '2', label: '作業員の日中運用', title: '作業員の日中運用：ホーム ＆ 定時チェック ＆ 危険アラート' },
   { id: 'manager', no: '3', label: '管理者の初動', title: '管理者（職長・監督）の初動通知 ＆ 対応記録フロー' },
-  { id: 'admin', no: '4', label: '本部ダッシュボード', title: '事務所・本部 全体ダッシュボード（Admin PC）' },
+  { id: 'admin', no: '4', label: '本部ダッシュボード', title: '事務所・本部 全体ダッシュボード（M-01〜M-03）' },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -28,7 +28,7 @@ export function ProposalTabs() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-x-8 gap-y-3 px-6 py-3">
+        <div className="mx-auto flex w-full max-w-[1920px] flex-wrap items-center gap-x-8 gap-y-3 px-6 py-3">
           <div className="leading-tight">
             <p className="text-base font-bold tracking-wide text-blue-950">HEATGUARD</p>
             <p className="text-xs font-semibold tracking-wider text-blue-600">SAFETY MONITOR</p>
@@ -58,7 +58,7 @@ export function ProposalTabs() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1440px] px-6 py-8">
+      <div className="mx-auto w-full max-w-[1920px] px-6 py-8">
         <div className="mb-8">
           <p className="text-sm font-semibold text-blue-600">ページ{current.no}</p>
           <h1 className="mt-1 text-2xl font-bold text-slate-900">{current.title}</h1>
@@ -66,7 +66,7 @@ export function ProposalTabs() {
 
         <section role="tabpanel" id={`panel-${active}`} aria-labelledby={`tab-${active}`}>
           {active === 'entry' && (
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className={SCREEN_GRID}>
               <ScreenColumn id="W-01" title="入場QR自動認証 ＆ 初回同意">
                 <ConsentScreen onAgree={() => flash('morning')} />
               </ScreenColumn>
@@ -80,7 +80,12 @@ export function ProposalTabs() {
           )}
           {active === 'daytime' && <DaytimePage />}
           {active === 'manager' && <ManagerPage />}
-          {active === 'admin' && <AdminDashboard />}
+          {active === 'admin' && (
+            <div>
+              <ScreenCaption id="M-01" title="事務所・本部 全体ダッシュボード（ドロワー M-02 / 設定 M-03）" />
+              <AdminDashboard />
+            </div>
+          )}
         </section>
       </div>
     </main>

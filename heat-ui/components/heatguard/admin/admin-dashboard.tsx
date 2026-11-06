@@ -2,22 +2,76 @@
 
 import { useState } from 'react'
 import { CheckCircle2, ChevronDown, Download, Settings } from 'lucide-react'
-import { BrowserFrame } from '@/components/showcase/device-frames'
+import { IpadFrame } from '@/components/showcase/device-frames'
 import { FILTERS, SITES, type ColumnKey, type FilterKey, type Worker } from '@/components/heatguard/admin/dashboard-data'
-import { DashboardTable, TimelineDot } from '@/components/heatguard/admin/dashboard-table'
+import { DashboardTable } from '@/components/heatguard/admin/dashboard-table'
 import { WorkerDrawer } from '@/components/heatguard/admin/worker-drawer'
 import { SettingsModal } from '@/components/heatguard/admin/settings-modal'
 import { cn } from '@/lib/utils'
 import { numeric } from '@/components/heatguard/numeric-font'
 
-type Kpi = { label: string; value: string; sub: string; accent: string }
+type Kpi = { label: string; value: string; sub?: string; accent: string }
 
 const kpis: Kpi[] = [
   { label: '本日の入場者数', value: '142', sub: '登録: 146名中', accent: 'text-ink' },
-  { label: '朝の要注意', value: '6', sub: '血圧・睡眠・前日引継', accent: 'text-amber-600' },
-  { label: 'アラート発生', value: '1', sub: '鈴木職長 対応中', accent: 'font-medium text-red-600' },
-  { label: '定時チェック未入力', value: '2', sub: '5分本人通知済・10分上長通知', accent: 'text-ink' },
+  { label: '朝の要注意', value: '6', accent: 'text-orange-500' },
+  { label: 'アラート発生', value: '1', accent: 'text-red-600' },
+  { label: '定時チェック未入力', value: '2', accent: 'text-orange-500' },
 ]
+
+/** 左が現在、右端のいちばん高い線がこの先の最高気温。線を重ねて黄から赤へ。 */
+const HEAT_CRESTS = [
+  'M0.0 127.6C4.2 127.8 16.7 128.9 25.0 129.1C33.3 129.3 41.7 129.2 50.0 128.7C58.3 128.2 66.7 127.4 75.0 126.3C83.3 125.2 91.7 123.7 100.0 122.0C108.3 120.4 116.7 118.3 125.0 116.3C133.3 114.3 141.7 112.1 150.0 109.9C158.3 107.8 166.7 105.6 175.0 103.7C183.3 101.8 191.7 99.9 200.0 98.3C208.3 96.7 216.7 95.3 225.0 94.2C233.3 93.0 241.7 92.1 250.0 91.4C258.3 90.6 266.7 90.1 275.0 89.6C283.3 89.1 291.7 88.7 300.0 88.3C308.3 87.8 316.7 87.4 325.0 86.8C333.3 86.2 341.7 85.5 350.0 84.6C358.3 83.7 366.7 82.5 375.0 81.3C383.3 80.1 395.8 78.0 400.0 77.3',
+  'M0.0 133.9C4.2 133.5 16.7 132.7 25.0 131.5C33.3 130.4 41.7 128.7 50.0 126.9C58.3 125.2 66.7 123.0 75.0 121.0C83.3 118.9 91.7 116.6 100.0 114.6C108.3 112.5 116.7 110.4 125.0 108.6C133.3 106.8 141.7 105.2 150.0 103.8C158.3 102.4 166.7 101.3 175.0 100.4C183.3 99.5 191.7 98.9 200.0 98.4C208.3 97.9 216.7 97.6 225.0 97.3C233.3 97.0 241.7 96.9 250.0 96.6C258.3 96.2 266.7 95.9 275.0 95.4C283.3 94.8 291.7 94.2 300.0 93.3C308.3 92.3 316.7 91.2 325.0 89.9C333.3 88.6 341.7 87.0 350.0 85.4C358.3 83.8 366.7 81.6 375.0 80.1C383.3 78.5 395.8 76.8 400.0 76.1',
+  'M0.0 130.1C4.2 129.2 16.7 126.5 25.0 124.5C33.3 122.6 41.7 120.4 50.0 118.5C58.3 116.6 66.7 114.7 75.0 113.1C83.3 111.6 91.7 110.2 100.0 109.1C108.3 108.0 116.7 107.3 125.0 106.7C133.3 106.1 141.7 105.8 150.0 105.5C158.3 105.3 166.7 105.3 175.0 105.2C183.3 105.0 191.7 105.1 200.0 104.8C208.3 104.6 216.7 104.3 225.0 103.8C233.3 103.3 241.7 102.5 250.0 101.6C258.3 100.6 266.7 99.4 275.0 97.9C283.3 96.5 291.7 94.8 300.0 93.1C308.3 91.3 316.7 89.3 325.0 87.4C333.3 85.5 341.7 83.4 350.0 81.5C358.3 79.6 366.7 77.6 375.0 76.0C383.3 74.4 395.8 72.7 400.0 72.0',
+]
+const HEAT_CREST_FRAMES = `${HEAT_CRESTS.join(';')};${HEAT_CRESTS[0]}`
+const HEAT_LINE_OFFSETS = [30, 24, 18, 12, 6, 0]
+
+function TemperatureCard({ compact }: { compact: boolean }) {
+  return (
+    <li className="relative min-w-0 overflow-hidden rounded-2xl bg-white p-4 shadow-[0_6px_16px_-8px_rgba(15,23,42,0.22)]">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <svg className="heat-time-wave absolute inset-0 h-full w-full" viewBox="0 0 400 160" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="heat-time" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#E4C15A" />
+              <stop offset="52%" stopColor="#E39258" />
+              <stop offset="100%" stopColor="#D9655C" />
+            </linearGradient>
+            <path id="heat-crest" fill="none" d={HEAT_CRESTS[0]}>
+              <animate attributeName="d" dur="11s" repeatCount="indefinite" calcMode="linear" values={HEAT_CREST_FRAMES} />
+            </path>
+          </defs>
+          {HEAT_LINE_OFFSETS.map((dy) => (
+            <use
+              key={dy}
+              href="#heat-crest"
+              transform={`translate(0 ${dy})`}
+              stroke="url(#heat-time)"
+              strokeWidth={dy === 0 ? 1.6 : 1.15}
+              vectorEffect="non-scaling-stroke"
+              opacity={dy === 0 ? 0.85 : 0.22 + (30 - dy) / 90}
+            />
+          ))}
+        </svg>
+      </div>
+      <div className="relative">
+        <p className="text-xs text-zinc-600">現在の気温（大阪市北区）</p>
+        <p className="mt-2 flex items-baseline">
+          <span className={cn(numeric.className, 'tracking-[0.005em] tabular-nums text-ink', compact ? 'text-[41.4px]/none' : 'text-[55.2px]/none')}>
+            33<span className="text-[70%]">.5</span>
+          </span>
+          <span className="ml-1 text-sm text-zinc-600">℃</span>
+        </p>
+      </div>
+      <span className="absolute bottom-4 left-4 inline-flex h-4 items-center gap-1 rounded-full border border-red-500 bg-white px-1.5 text-[10px] leading-none text-zinc-500">
+        <span className="size-1.5 rounded-full bg-red-500" aria-hidden />
+        厳重警戒
+      </span>
+    </li>
+  )
+}
 
 const siteOptions = [
   { value: 'all', label: '全現場横断（Level 1 本部）' },
@@ -25,17 +79,10 @@ const siteOptions = [
   { value: 'kaishu', label: '△△改修工事現場' },
 ]
 
-const legend = [
-  { cell: 'g', label: '良好' },
-  { cell: 'y', label: '注意' },
-  { cell: 'r', label: '異常' },
-  { cell: 'n', label: '未入力' },
-] as const
-
 export function AdminDashboard() {
   const [site, setSite] = useState('all')
   const [filter, setFilter] = useState<FilterKey>('all')
-  const [columns, setColumns] = useState<Record<ColumnKey, boolean>>({ age: true, company: true, leader: true, vitals: true })
+  const [columns, setColumns] = useState<Record<ColumnKey, boolean>>({ age: true, company: true, leader: false, vitals: true })
   const [selected, setSelected] = useState<Worker | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -48,12 +95,13 @@ export function AdminDashboard() {
   const visibleSites = site === 'all' ? SITES : SITES.filter((s) => s.id === site)
 
   return (
-    <BrowserFrame url="admin.heatguard.jp/dashboard" label="事務所・本部 全体ダッシュボード">
-      <div className="relative min-h-[860px] overflow-hidden bg-white text-zinc-900">
-        <header className="flex flex-wrap items-center gap-x-8 gap-y-3 border-b border-zinc-100 bg-white px-8 py-4">
+    <IpadFrame label="M-01 事務所・本部 全体ダッシュボード">
+      <div className="relative flex min-h-full overflow-hidden bg-canvas text-ink">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="flex flex-wrap items-center gap-x-8 gap-y-3 border-b border-line bg-canvas px-8 py-4">
           <div className="leading-tight">
-            <p className="text-base font-bold tracking-wide text-zinc-900">HEATGUARD</p>
-            <p className="text-xs font-medium tracking-wider text-zinc-500">SAFETY MONITOR</p>
+            <p className="type-label tracking-wide">HEATGUARD</p>
+            <p className="type-caption tracking-wider text-sub-ink">SAFETY MONITOR</p>
           </div>
 
           <label className="relative flex items-center">
@@ -64,7 +112,7 @@ export function AdminDashboard() {
                 setSite(e.target.value)
                 setSelected(null)
               }}
-              className="cursor-pointer appearance-none rounded-lg bg-[#F5F5F3] py-2 pr-9 pl-3 text-sm font-medium text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
+              className="cursor-pointer appearance-none rounded-md border border-line bg-white py-1.5 pr-7 pl-2.5 text-xs font-medium text-ink outline-none"
             >
               {siteOptions.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -72,22 +120,15 @@ export function AdminDashboard() {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 size-4 text-zinc-500" aria-hidden />
+            <ChevronDown className="pointer-events-none absolute right-2 size-3 text-quiet" aria-hidden />
           </label>
 
           <div className="ml-auto flex flex-wrap items-center gap-x-6 gap-y-2">
-            <p className="flex items-center gap-2 whitespace-nowrap text-sm text-zinc-600">
-              大阪市北区｜気温 33.5℃ / WBGT 31.2℃
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500 bg-white px-2.5 py-0.5 text-xs text-zinc-500">
-                <span className="size-1.5 rounded-full bg-red-500" aria-hidden />
-                厳重警戒
-              </span>
-            </p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => showToast('CSV / PDF を出力しました')}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-[#F5F5F3]"
+                className="type-button flex h-[42px] items-center gap-1.5 rounded-lg bg-white px-3.5 text-ink hover:bg-canvas"
               >
                 <Download className="size-4" aria-hidden />
                 CSV / PDF出力
@@ -95,7 +136,7 @@ export function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => setSettingsOpen(true)}
-                className="type-button flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-white transition-colors hover:bg-blue-700"
+                className="type-button flex h-[42px] items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 text-white hover:bg-blue-700"
               >
                 <Settings className="size-4" aria-hidden />
                 設定
@@ -104,21 +145,22 @@ export function AdminDashboard() {
           </div>
         </header>
 
-        <div className="px-8 pb-8">
-          <ul className="grid grid-cols-4 gap-8 border-b border-zinc-100 py-6">
+        <div className="min-w-0 flex-1 px-8 pb-8">
+          <ul className={cn('grid gap-3 py-6', selected ? 'grid-cols-2' : 'grid-cols-5')}>
             {kpis.map((k) => (
-              <li key={k.label}>
-                <p className="text-xs font-semibold text-zinc-500">{k.label}</p>
+              <li key={k.label} className="min-w-0 rounded-2xl bg-white p-4 shadow-[0_6px_16px_-8px_rgba(15,23,42,0.22)]">
+                <p className="text-xs text-zinc-600">{k.label}</p>
                 <p className="mt-2 flex items-baseline">
-                  <span className={cn(numeric.className, 'text-5xl leading-none tracking-[0.005em] tabular-nums', k.accent)}>{k.value}</span>
-                  <span className="ml-1 text-sm text-zinc-400">名</span>
+                  <span className={cn(numeric.className, 'tracking-[0.005em] tabular-nums', selected ? 'text-[41.4px]/none' : 'text-[55.2px]/none', k.accent)}>{k.value}</span>
+                  <span className="ml-1 text-sm text-zinc-600">名</span>
                 </p>
-                <p className="mt-2 text-xs text-zinc-400">{k.sub}</p>
+                {k.sub ? <p className="mt-5 type-caption">{k.sub}</p> : null}
               </li>
             ))}
+            <TemperatureCard compact={Boolean(selected)} />
           </ul>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-6 pb-3">
+          <div className="flex flex-wrap items-center gap-3 pt-2 pb-3">
             <div className="flex gap-6" role="tablist" aria-label="表示フィルタ">
               {FILTERS.map((f) => (
                 <button
@@ -129,32 +171,26 @@ export function AdminDashboard() {
                   onClick={() => setFilter(f.key)}
                   className={cn(
                     'border-b-2 pb-1.5 text-sm transition-colors',
-                    filter === f.key ? 'border-zinc-900 font-semibold text-zinc-900' : 'border-transparent text-zinc-500 hover:text-zinc-800',
+                    filter === f.key ? 'border-blue-600 type-label' : 'border-transparent type-meta hover:text-ink',
                   )}
                 >
                   {f.label}
                 </button>
               ))}
             </div>
-            <ul className="flex flex-wrap items-center gap-4 text-xs text-zinc-500">
-              {legend.map(({ cell, label }) => (
-                <li key={label} className="flex items-center gap-1.5">
-                  <span className="flex size-4 items-center justify-center">
-                    <TimelineDot cell={cell} />
-                  </span>
-                  {label}
-                </li>
-              ))}
-            </ul>
           </div>
 
+          <div className={cn('min-w-0 rounded-2xl bg-white', selected ? 'overflow-hidden' : 'overflow-x-auto')}>
           <DashboardTable
             sites={visibleSites}
             columns={columns}
             filter={filter}
             selectedId={selected?.id ?? null}
+            compact={Boolean(selected)}
             onSelect={(w) => setSelected((cur) => (cur?.id === w.id ? null : w))}
           />
+          </div>
+        </div>
         </div>
 
         {selected && <WorkerDrawer worker={selected} onClose={() => setSelected(null)} />}
@@ -169,13 +205,13 @@ export function AdminDashboard() {
         {toast && (
           <div
             role="status"
-            className="absolute bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2"
+            className="absolute bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-ink px-4 py-3 type-button text-white animate-in fade-in slide-in-from-bottom-2"
           >
             <CheckCircle2 className="size-4 text-emerald-400" aria-hidden />
             {toast}
           </div>
         )}
       </div>
-    </BrowserFrame>
+    </IpadFrame>
   )
 }

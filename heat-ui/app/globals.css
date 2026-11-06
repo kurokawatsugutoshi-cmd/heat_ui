@@ -127,6 +127,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .heat-time-wave animate {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .now-glow {
     animation: none;
     opacity: 0.55;

@@ -1,11 +1,20 @@
+'use client'
+
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+
 type ScreenCaptionProps = {
   id: string
   title: string
 }
 
+export const SCREEN_GRID = 'grid grid-cols-3 items-start gap-6'
+
+const PHONE_W = 375
+const PHONE_H = 798
+
 export function ScreenCaption({ id, title }: ScreenCaptionProps) {
   return (
-    <figcaption className="mb-4 flex w-[375px] items-center gap-2.5">
+    <figcaption className="mb-4 flex w-full items-center gap-2.5">
       <span className="shrink-0 whitespace-nowrap rounded border border-blue-200 bg-blue-50 px-2 py-0.5 font-mono text-xs font-semibold text-blue-700">{id}</span>
       <h3 className="text-base font-bold text-slate-900">{title}</h3>
     </figcaption>
@@ -16,12 +25,31 @@ export function ScreenColumn({
   children,
   footer,
   ...caption
-}: ScreenCaptionProps & { children: React.ReactNode; footer?: React.ReactNode }) {
+}: ScreenCaptionProps & { children: ReactNode; footer?: ReactNode }) {
+  const slot = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+
+  useEffect(() => {
+    const el = slot.current
+    if (!el) return
+    const update = () => setScale(el.clientWidth / PHONE_W)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   return (
-    <div className="flex shrink-0 flex-col">
+    <div className="flex min-w-0 flex-col">
       <ScreenCaption {...caption} />
-      {children}
-      {footer && <div className="mt-4 w-[375px]">{footer}</div>}
+      <div ref={slot} className="min-w-0">
+        <div className="relative overflow-hidden" style={{ height: PHONE_H * scale }}>
+          <div className="origin-top-left" style={{ width: PHONE_W, transform: `scale(${scale})` }}>
+            {children}
+          </div>
+        </div>
+      </div>
+      {footer && <div className="mt-4 w-full">{footer}</div>}
     </div>
   )
 }

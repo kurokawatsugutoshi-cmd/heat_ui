@@ -9,7 +9,7 @@ function Flag({ tone, children }: { tone: 'red' | 'amber'; children: React.React
       className={
         tone === 'red'
           ? 'ml-1.5 rounded border border-red-200 bg-red-50 px-1.5 py-0.5 text-xs font-semibold text-red-700'
-          : 'ml-1.5 rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-xs font-semibold text-amber-800'
+          : 'ml-1.5 rounded border border-line bg-white px-1.5 py-0.5 text-xs font-medium text-ink'
       }
     >
       {children}
@@ -37,14 +37,14 @@ export function WorkerDrawer({ worker, onClose }: { worker: Worker; onClose: () 
   return (
     <aside
       aria-label={`${worker.name}の詳細情報`}
-      className="absolute inset-y-0 right-0 z-30 flex w-[380px] flex-col border-l border-slate-200 bg-white shadow-xl animate-in slide-in-from-right-8 duration-300"
+      className="flex w-[380px] shrink-0 flex-col border-l border-line bg-canvas animate-in slide-in-from-right-8 duration-300"
     >
-      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
-        <h2 className="text-base font-bold text-slate-900">作業員 詳細情報</h2>
+      <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+        <h2 className="type-label">M-02 作業員 詳細情報</h2>
         <button
           type="button"
           onClick={onClose}
-          className="flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+          className="type-button flex h-[42px] items-center gap-1 rounded-lg bg-white px-2.5 text-ink hover:bg-canvas"
         >
           閉じる
           <X className="size-4" aria-hidden />
@@ -52,21 +52,21 @@ export function WorkerDrawer({ worker, onClose }: { worker: Worker; onClose: () 
       </div>
 
       <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-md border border-slate-200 p-4">
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl bg-white p-4">
           {basics.map((row) => (
             <div key={row.label} className="min-w-0">
-              <dt className="text-xs text-slate-500">{row.label}</dt>
-              <dd className="mt-0.5 text-sm font-semibold text-slate-900">{row.value}</dd>
+              <dt className="type-caption">{row.label}</dt>
+              <dd className="type-label mt-0.5">{row.value}</dd>
             </div>
           ))}
         </dl>
 
         <section>
-          <h3 className="mb-2 text-sm font-bold text-slate-900">本日のバイタル・報告ステータス</h3>
-          <dl className="divide-y divide-slate-200 rounded-md border border-slate-200 text-sm">
+          <h3 className="type-label mb-2">本日のバイタル・報告ステータス</h3>
+          <dl className="divide-y divide-line rounded-2xl bg-white text-sm">
             <div className="px-4 py-2.5">
-              <dt className="text-xs text-slate-500">朝の血圧・脈拍</dt>
-              <dd className="mt-0.5 text-slate-900">
+              <dt className="type-caption">朝の血圧・脈拍</dt>
+              <dd className="type-body mt-0.5">
                 <span className="font-semibold tabular-nums">
                   {worker.sys} / {worker.dia} mmHg
                 </span>
@@ -75,33 +75,33 @@ export function WorkerDrawer({ worker, onClose }: { worker: Worker; onClose: () 
               </dd>
             </div>
             <div className="px-4 py-2.5">
-              <dt className="text-xs text-slate-500">昨日の睡眠時間</dt>
-              <dd className="mt-0.5 font-semibold text-slate-900">
+              <dt className="type-caption">昨日の睡眠時間</dt>
+              <dd className="type-label mt-0.5">
                 {worker.sleep}
                 {worker.sleep === '5時間以下' && <Flag tone="amber">要注意</Flag>}
               </dd>
             </div>
             <div className="px-4 py-2.5">
-              <dt className="text-xs text-slate-500">最新ステータス</dt>
-              <dd className="mt-0.5 font-semibold text-slate-900">{worker.latest}</dd>
+              <dt className="type-caption">最新ステータス</dt>
+              <dd className="type-label mt-0.5">{worker.latest}</dd>
             </div>
           </dl>
         </section>
 
         <section>
-          <h3 className="mb-2 flex items-center gap-1.5 text-sm font-bold text-slate-900">
-            <History className="size-4 text-slate-500" aria-hidden />
+          <h3 className="type-label mb-2 flex items-center gap-1.5">
+            <History className="size-4 text-quiet" aria-hidden />
             直近7日間の不調・引き継ぎ履歴
           </h3>
-          <div className="rounded-md bg-blue-50/60 p-3">
+          <div className="rounded-2xl bg-white p-3">
             {worker.history.length > 0 ? (
-              <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
+              <ul className="type-body space-y-2 leading-relaxed">
                 {worker.history.map((h) => (
                   <li key={h}>{h}</li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-slate-500">直近7日間の不調申告なし</p>
+              <p className="type-meta">直近7日間の不調申告なし</p>
             )}
           </div>
         </section>
