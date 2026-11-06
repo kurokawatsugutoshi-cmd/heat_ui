@@ -1,5 +1,5 @@
 export type Cell = 'g' | 'y' | 'r' | 'n' | 'f'
-export type Status = 'normal' | 'caution' | 'alert' | 'missing' | 'leave'
+export type Status = 'normal' | 'caution' | 'alert' | 'responding' | 'leave'
 export type Sleep = '7時間以上' | '6時間' | '5時間以下'
 
 export type Worker = {
@@ -82,7 +82,7 @@ export const SITES: Site[] = [
             tier: '一次請け',
             leaderName: '鈴木 一郎',
             leaderTel: SUZUKI_TEL,
-            status: 'alert',
+            status: 'responding',
             statusNote: '鈴木職長 対応中',
             sys: 180,
             dia: 110,
@@ -122,7 +122,7 @@ export const SITES: Site[] = [
             tier: '一次請け',
             leaderName: '鈴木 一郎',
             leaderTel: SUZUKI_TEL,
-            status: 'missing',
+            status: 'normal',
             statusNote: '10分上長通知',
             sys: 124,
             dia: 78,
@@ -234,7 +234,7 @@ export const SITES: Site[] = [
             tier: '一次請け',
             leaderName: '山本 大輔',
             leaderTel: YAMAMOTO_TEL,
-            status: 'missing',
+            status: 'normal',
             statusNote: '5分本人通知済',
             sys: 118,
             dia: 76,
@@ -286,8 +286,8 @@ export const FILTERS: { key: FilterKey; label: string }[] = [
 ]
 
 export function matchesFilter(worker: Worker, filter: FilterKey) {
-  if (filter === 'attention') return worker.status === 'alert' || worker.status === 'caution'
-  if (filter === 'missing') return worker.status === 'missing'
+  if (filter === 'attention') return worker.status === 'alert' || worker.status === 'responding' || worker.status === 'caution'
+  if (filter === 'missing') return worker.timeline[CURRENT_TIME_INDEX] === 'n' && worker.status !== 'leave'
   return true
 }
 

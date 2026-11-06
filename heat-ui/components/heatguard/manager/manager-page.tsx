@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { DemoTabs, ScreenColumn } from '@/components/showcase/screen-caption'
+import { DemoTabs, SCREEN_GRID, ScreenColumn } from '@/components/showcase/screen-caption'
 import { ManagerHomeScreen } from '@/components/heatguard/manager/manager-home-screen'
 import { AlertListScreen } from '@/components/heatguard/manager/alert-list-screen'
 import {
@@ -22,7 +22,7 @@ export function ManagerPage() {
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-10">
+    <div className={SCREEN_GRID}>
       <ScreenColumn id="A-01" title="管理者ホーム（Teams通知 ＆ 部下アラート）">
         <ManagerHomeScreen />
       </ScreenColumn>

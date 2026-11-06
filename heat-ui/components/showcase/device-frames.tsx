@@ -46,14 +46,32 @@ export function PhoneFrame({ children, time = '7:45', tone = 'light', frame = 'l
   )
 }
 
+/** 横向き iPad Pro 13インチ（M5）。本体 281.6×215.5mm、画面 2752×2064。 */
+export function IpadFrame({ children, label }: { children: React.ReactNode; label: string }) {
+  return (
+    <figure
+      aria-label={label}
+      className="@container relative aspect-[2816/2155] w-full rounded-[2.25rem] bg-black p-[3%] shadow-[0_28px_56px_-28px_rgba(15,23,42,0.45)]"
+    >
+      <span
+        className="absolute top-[1.5cqw] left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-800 ring-1 ring-zinc-700"
+        aria-hidden
+      />
+      <div className="h-full overflow-hidden rounded-[1.35rem]">
+        <div className="h-full overflow-y-auto overscroll-contain">{children}</div>
+      </div>
+    </figure>
+  )
+}
+
 export function BrowserFrame({ children, url, label }: { children: React.ReactNode; url: string; label: string }) {
   return (
     <figure
       aria-label={label}
-      className="w-full overflow-hidden rounded-lg border border-slate-300 bg-white shadow-[0_24px_48px_-24px_rgba(15,23,42,0.25)]"
+      className="w-full overflow-hidden rounded-lg border border-line bg-canvas shadow-[0_24px_48px_-24px_rgba(15,23,42,0.25)]"
     >
-      <div className="flex items-center border-b border-slate-200 bg-slate-100 px-4 py-2">
-        <div className="mx-auto flex w-full max-w-md items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1 font-mono text-xs text-slate-500">
+      <div className="flex items-center border-b border-line bg-canvas px-4 py-2">
+        <div className="mx-auto flex w-full max-w-md items-center justify-center gap-1.5 rounded-md border border-line bg-white px-3 py-1 font-mono type-caption">
           <Lock className="size-3" aria-hidden />
           {url}
         </div>

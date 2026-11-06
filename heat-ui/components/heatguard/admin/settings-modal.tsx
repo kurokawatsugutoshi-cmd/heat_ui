@@ -9,7 +9,7 @@ const NOTICE_MAX = 120
 
 function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-1.5 text-sm text-slate-700">
+    <div className="flex items-center justify-between gap-3 py-1.5 type-body">
       <span>{label}</span>
       <button
         type="button"
@@ -19,13 +19,13 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: 
         onClick={() => onChange(!checked)}
         className={cn(
           'relative h-6 w-11 shrink-0 rounded-md border transition-colors',
-          checked ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-slate-100',
+          checked ? 'border-blue-600 bg-blue-600' : 'border-line bg-white',
         )}
       >
         <span
           className={cn(
             'absolute top-0.5 size-[18px] rounded bg-white shadow-sm transition-all',
-            checked ? 'left-[21px]' : 'left-0.5 border border-slate-300',
+            checked ? 'left-[21px]' : 'left-0.5 border border-line',
           )}
         />
       </button>
@@ -35,10 +35,10 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 
 function Section({ n, icon: Icon, title, children }: { n: string; icon: LucideIcon; title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-900">
+    <section className="rounded-2xl bg-white p-4">
+      <h3 className="type-label mb-3 flex items-center gap-2">
         <Icon className="size-4 text-blue-600" aria-hidden />
-        <span className="text-slate-500">{n}.</span>
+        <span className="type-caption">{n}.</span>
         {title}
       </h3>
       {children}
@@ -47,8 +47,8 @@ function Section({ n, icon: Icon, title, children }: { n: string; icon: LucideIc
 }
 
 const inputClass =
-  'mt-1 w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20'
-const fieldLabel = 'block text-sm text-slate-600'
+  'mt-1 w-full rounded-md border border-line bg-white px-2.5 py-1.5 type-body outline-none focus:border-blue-600'
+const fieldLabel = 'block type-caption'
 
 type SettingsModalProps = {
   columns: Record<ColumnKey, boolean>
@@ -64,21 +64,21 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
   const [notice, setNotice] = useState('')
 
   return (
-    <div className="absolute inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-6">
+    <div className="absolute inset-0 z-40 flex items-start justify-center overflow-y-auto bg-ink/40 p-6">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-title"
-        className="w-full max-w-5xl rounded-lg border border-slate-200 bg-slate-50 shadow-xl animate-in fade-in zoom-in-95 duration-200"
+        className="w-full max-w-5xl rounded-2xl bg-canvas animate-in fade-in zoom-in-95 duration-200"
       >
-        <div className="flex items-center justify-between rounded-t-lg border-b border-slate-200 bg-white px-6 py-4">
-          <h2 id="settings-title" className="text-lg font-bold text-slate-900">
-            設定
+        <div className="flex items-center justify-between rounded-t-2xl border-b border-line bg-canvas px-6 py-4">
+          <h2 id="settings-title" className="type-title">
+            M-03 設定
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="flex size-9 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+            className="flex size-9 items-center justify-center rounded-md text-quiet hover:bg-white hover:text-ink"
             aria-label="閉じる"
           >
             <X className="size-5" aria-hidden />
@@ -91,7 +91,7 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
             <Switch label="血圧" checked={questions.bp} onChange={(v) => setQuestions({ ...questions, bp: v })} />
             <Switch label="脈拍" checked={questions.pulse} onChange={(v) => setQuestions({ ...questions, pulse: v })} />
             <Switch label="睡眠" checked={questions.sleep} onChange={(v) => setQuestions({ ...questions, sleep: v })} />
-            <div className="mt-2 grid grid-cols-3 gap-2 border-t border-slate-200 pt-3">
+            <div className="mt-2 grid grid-cols-3 gap-2 border-t border-line pt-3">
               <label className={fieldLabel}>
                 最高血圧
                 <input className={inputClass} defaultValue="180" inputMode="numeric" />
@@ -104,7 +104,7 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
                 睡眠
                 <span className="mt-1 flex items-center gap-1">
                   <input className={cn(inputClass, 'mt-0 w-12')} defaultValue="5" inputMode="numeric" />
-                  <span className="whitespace-nowrap text-xs text-slate-500">時間以下</span>
+                  <span className="whitespace-nowrap type-caption">時間以下</span>
                 </span>
               </label>
             </div>
@@ -117,10 +117,10 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
                 { lv: 'Level 2', role: '現場監督', scope: '担当現場すべて' },
                 { lv: 'Level 3', role: '職長', scope: '自社作業員のみ' },
               ].map((r) => (
-                <li key={r.lv} className="rounded-md border border-slate-200 bg-slate-100 px-3 py-2">
+                <li key={r.lv} className="rounded-md bg-canvas px-3 py-2">
                   <span className="font-semibold text-blue-700">{r.lv}</span>
-                  <span className="ml-2 font-semibold text-slate-900">{r.role}</span>
-                  <span className="text-slate-600">（{r.scope}）</span>
+                  <span className="type-label ml-2">{r.role}</span>
+                  <span className="type-caption">（{r.scope}）</span>
                 </li>
               ))}
             </ul>
@@ -136,7 +136,7 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
                 地域
                 <input className={inputClass} defaultValue="大阪府大阪市北区" />
               </label>
-              <p className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-sm text-emerald-700">
+              <p className="type-body rounded-md bg-canvas px-2.5 py-1.5">
                 自動取得済：気温 33.5℃ / WBGT 31.2℃
               </p>
             </div>
@@ -158,11 +158,11 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
                   onClick={() => setCycle(o.v)}
                   className={cn(
                     'rounded-md border px-3 py-2 text-left',
-                    cycle === o.v ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
+                    cycle === o.v ? 'border-blue-600 bg-blue-600 text-white' : 'border-line bg-white text-ink hover:bg-canvas',
                   )}
                 >
                   <span className="block text-sm font-semibold">{o.l}</span>
-                  <span className="text-xs text-slate-500">（{o.s}）</span>
+                  <span className={cn('text-xs', cycle === o.v ? 'text-white/80' : 'text-quiet')}>（{o.s}）</span>
                 </button>
               ))}
             </div>
@@ -171,14 +171,14 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
                 本人リマインド
                 <span className="mt-1 flex items-center gap-1">
                   <input className={cn(inputClass, 'mt-0')} defaultValue="5" inputMode="numeric" />
-                  <span className="whitespace-nowrap text-xs text-slate-500">分後</span>
+                  <span className="whitespace-nowrap type-caption">分後</span>
                 </span>
               </label>
               <label className={fieldLabel}>
                 上長アラート
                 <span className="mt-1 flex items-center gap-1">
                   <input className={cn(inputClass, 'mt-0')} defaultValue="10" inputMode="numeric" />
-                  <span className="whitespace-nowrap text-xs text-slate-500">分後</span>
+                  <span className="whitespace-nowrap type-caption">分後</span>
                 </span>
               </label>
             </div>
@@ -206,17 +206,17 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
                 className={cn(inputClass, 'resize-none leading-relaxed')}
               />
             </label>
-            <p className="mt-1 text-right text-xs text-slate-400 tabular-nums">
+            <p className="type-caption mt-1 text-right tabular-nums">
               {notice.length} / {NOTICE_MAX}
             </p>
           </Section>
         </div>
 
-        <div className="flex justify-end gap-2 rounded-b-lg border-t border-slate-200 bg-white px-6 py-4">
+        <div className="flex justify-end gap-2 rounded-b-2xl border-t border-line bg-canvas px-6 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="type-button rounded-lg border border-line bg-white px-4 py-2 text-ink hover:bg-canvas"
+            className="type-button flex h-[42px] items-center rounded-lg bg-white px-4 text-ink hover:bg-white/70"
           >
             キャンセル
           </button>
@@ -227,7 +227,7 @@ export function SettingsModal({ columns, onColumnsChange, onClose, onSave }: Set
               onSave()
               onClose()
             }}
-            className="type-button rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
+            className="type-button flex h-[42px] items-center rounded-lg bg-blue-600 px-5 text-white hover:bg-blue-700"
           >
             設定を保存する
           </button>

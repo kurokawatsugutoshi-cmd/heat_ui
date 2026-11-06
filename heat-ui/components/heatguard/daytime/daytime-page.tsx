@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { DemoTabs, ScreenColumn } from '@/components/showcase/screen-caption'
+import { DemoTabs, SCREEN_GRID, ScreenColumn } from '@/components/showcase/screen-caption'
 import { WorkerHomeScreen } from '@/components/heatguard/daytime/worker-home-screen'
 import { HourlyCheckScreen, type CheckResult } from '@/components/heatguard/daytime/hourly-check-screen'
 import { DangerAlertScreen, type AlertStage } from '@/components/heatguard/daytime/danger-alert-screen'
@@ -19,7 +19,7 @@ export function DaytimePage() {
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-8">
+    <div className={SCREEN_GRID}>
       <ScreenColumn id="W-04" title="作業員・職長 共通ホーム（待機・気象連動）">
         <WorkerHomeScreen onStartCheck={() => flash('check')} />
       </ScreenColumn>
